@@ -4,6 +4,7 @@ import spotipy
 import spotipy.util as util
 import pprint
 import pylast
+import json
 
 username = 'jalexaacobs45'
 playlist_id = 'spotify:playlist:1umFDa1LXFUTVDhPNa9pa3'
@@ -92,8 +93,26 @@ def weeklyTrackWork(user):
 
     if token:
         sp = spotipy.Spotify(auth=token)
+        
+        #TODO - make it r+ and then keep the file open for the read and write
+
+        # load in old ids to remove 
+        try: # needs to be a try in case the data file doesnt exist
+            with open('data.json', 'r', encoding='utf-8') as infile: 
+                old_ids = json.load(infile)
+                print("old ids coming up: ", old_ids)
+
+            # print(old_ids)
+            for i in range(len(old_ids)):
+                print(old_ids[i])
+                results = sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, old_ids[i])
+        except FileNotFoundError:
+            # this means the file doesnt exist and, it will be created later so do nothing
+            pass
+
         # THANKS GITHUB https://github.com/plamere/spotipy/issues/33
         #q = "artist:Rolling Blackout AND track:French"
+        uri_list = []
         for i in range(len(topTracks)):
             q = topTracks[i]
             result = sp.search(q, limit=1,type="track")
@@ -104,21 +123,24 @@ def weeklyTrackWork(user):
 
             
             # uncomment to remove from PL
-            results = sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, uri)
+
+            
+            #results = sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, uri)
 
 
             # add to playlist
-            #results = sp.user_playlist_add_tracks(username, playlist_id, uri)
+            results = sp.user_playlist_add_tracks(username, playlist_id, uri)
 
-
+            #TODO - Add a date when last updated
 
             print(results)
 
-    
-
-    # for later: how to delete the last week's top20? Grab the songs in the playlist before hand? or could just save the 20 URIs in a file and pull from that
+            uri_list.append(uri)
 
 
+        with open('data.json', 'w', encoding='utf-8') as f:
+            json.dump(uri_list, f, ensure_ascii=False, indent=4)    
+        #print(json.dumps(uri_list))
 
 
     # if token:
