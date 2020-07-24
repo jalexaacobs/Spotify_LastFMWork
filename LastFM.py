@@ -84,8 +84,6 @@ def weeklyTrackWork(user):
     # get top tracks for the lasts week
     topTracks = jalex.get_top_tracks(period='7day', limit=20)
     topTracks = [str(topTracks[i][0]) for i in range(len(topTracks))]
-    # for i in range(len(topTracks)):
-    #     print(topTracks[i])
 
     #  playing around with searching for songs in spotify...
     scope = 'playlist-modify-public'
@@ -93,22 +91,13 @@ def weeklyTrackWork(user):
 
     if token:
         sp = spotipy.Spotify(auth=token)
-        
-        #TODO - make it r+ and then keep the file open for the read and write
 
-        # load in old ids to remove 
-        try: # needs to be a try in case the data file doesnt exist
-            with open('data.json', 'r', encoding='utf-8') as infile: 
-                old_ids = json.load(infile)
-                print("old ids coming up: ", old_ids)
+        #TODO - add timestamp when updated to description - getting errors with this
+        #(WIP) Grabs my weekly Top 20 songs from Last.fm and puts them in this playlist.
+        # print(username)
+        # print(playlist_id)
+        # res = sp.user_playlist_change_details(username, playlist_id, description="testing lol")
 
-            # print(old_ids)
-            for i in range(len(old_ids)):
-                print(old_ids[i])
-                results = sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, old_ids[i])
-        except FileNotFoundError:
-            # this means the file doesnt exist and, it will be created later so do nothing
-            pass
 
         # THANKS GITHUB https://github.com/plamere/spotipy/issues/33
         #q = "artist:Rolling Blackout AND track:French"
@@ -118,42 +107,11 @@ def weeklyTrackWork(user):
             result = sp.search(q, limit=1,type="track")
             #pprint.pprint(result)
             refined = result['tracks']['items'][0]
-            uri = [(refined['uri'])]
+            uri = (refined['uri'])
             pprint.pprint(uri)
-
-            
-            # uncomment to remove from PL
-
-            
-            #results = sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, uri)
-
-
-            # add to playlist
-            results = sp.user_playlist_add_tracks(username, playlist_id, uri)
-
-            #TODO - Add a date when last updated
-
-            print(results)
-
             uri_list.append(uri)
 
-
-        with open('data.json', 'w', encoding='utf-8') as f:
-            json.dump(uri_list, f, ensure_ascii=False, indent=4)    
-        #print(json.dumps(uri_list))
-
-
-    # if token:
-    #     sp = spotipy.Spotify(auth=token)
-    #     sp.trace = False
-    #     #results = sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, track_ids)
-    #     results = sp.user_playlist_add_tracks(username, playlist_id, track_ids)
-    #     print(results)
-    # else:
-    #     print("Can't get token for", username)
-
-    # for track in topTracks:
-    #     print(str(track[0]))
+        sp.user_playlist_replace_tracks(username, playlist_id, uri_list) 
 
 
 # from last fm
@@ -161,11 +119,11 @@ API_KEY = "30dd590f46f1e9d6e29d46765d85fa85"  # this is a sample key
 API_SECRET = "7b168f6722c966e5174f7774aeef759f"
 
 # authenticate
-username = "jalexaacobs"
+lfmUsername = "jalexaacobs"
 password_hash = pylast.md5("Adamsandler62!")
 
 # get network
-network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET, username=username, password_hash=password_hash)
+network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET, username=lfmUsername, password_hash=password_hash)
 
 jalex = network.get_authenticated_user()
 #user2 = network.get_user("cthomas68")
