@@ -7,7 +7,7 @@ import pylast
 import json
 
 username = 'jalexaacobs45'
-playlist_id = 'spotify:playlist:1umFDa1LXFUTVDhPNa9pa3'
+playlist_id_spotify = 'spotify:playlist:1umFDa1LXFUTVDhPNa9pa3'
 
 
 
@@ -95,23 +95,24 @@ def weeklyTrackWork(user):
         #TODO - add timestamp when updated to description - getting errors with this
         #(WIP) Grabs my weekly Top 20 songs from Last.fm and puts them in this playlist.
         # print(username)
-        # print(playlist_id)
-        # res = sp.user_playlist_change_details(username, playlist_id, description="testing lol")
+        # print(playlist_id_spotify)
+        # res = sp.user_playlist_change_details(username, playlist_id_spotify, description="testing lol")
 
-
-        # THANKS GITHUB https://github.com/plamere/spotipy/issues/33
-        #q = "artist:Rolling Blackout AND track:French"
+        fail_count = 0 # count for every track that fails to be added 
         uri_list = []
         for i in range(len(topTracks)):
-            q = topTracks[i]
-            result = sp.search(q, limit=1,type="track")
-            #pprint.pprint(result)
-            refined = result['tracks']['items'][0]
-            uri = (refined['uri'])
-            pprint.pprint(uri)
-            uri_list.append(uri)
-
-        sp.user_playlist_replace_tracks(username, playlist_id, uri_list) 
+            try:
+                q = topTracks[i]
+                result = sp.search(q, limit=1,type="track")
+                refined = result['tracks']['items'][0] # this fails sometimes - why?
+                uri = (refined['uri'])
+                uri_list.append(uri)
+            except:
+                # something went wrong, count it 
+                fail_count += 1
+            
+        print(fail_count)
+        sp.user_playlist_replace_tracks(username, playlist_id_spotify, uri_list) 
 
 
 # from last fm
