@@ -81,8 +81,8 @@ def weeklyTrackWork(user):
     PERIOD_6MONTHS = "6month"
     PERIOD_12MONTHS = "12month"
     '''
-    # get top tracks for the lasts week
-    topTracks = jalex.get_top_tracks(period='7day', limit=20)
+    # get top tracks for the lasts week - get 30 for some buffer for failure
+    topTracks = jalex.get_top_tracks(period='7day', limit=30)
     topTracks = [str(topTracks[i][0]) for i in range(len(topTracks))]
 
     #  playing around with searching for songs in spotify...
@@ -101,17 +101,17 @@ def weeklyTrackWork(user):
         fail_count = 0 # count for every track that fails to be added 
         uri_list = []
         for i in range(len(topTracks)):
-            try:
-                q = topTracks[i]
-                result = sp.search(q, limit=1,type="track")
-                refined = result['tracks']['items'][0] # this fails sometimes - why?
-                uri = (refined['uri'])
-                uri_list.append(uri)
-            except:
-                # something went wrong, count it 
-                fail_count += 1
-            
-        print(fail_count)
+            if i < 20 + fail_count: #loop until 20 tracks can be added
+                try:
+                    q = topTracks[i]
+                    result = sp.search(q, limit=1,type="track")
+                    refined = result['tracks']['items'][0] # this fails sometimes - why?
+                    uri = (refined['uri'])
+                    uri_list.append(uri)
+                except:
+                    # something went wrong, count it 
+                    fail_count += 1
+                    
         sp.user_playlist_replace_tracks(username, playlist_id_spotify, uri_list) 
 
 
