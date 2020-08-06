@@ -1,5 +1,5 @@
 import sys
-
+import datetime
 import spotipy
 import spotipy.util as util
 import pprint
@@ -7,7 +7,7 @@ import pylast
 import json
 
 username = 'jalexaacobs45'
-playlist_id_spotify = 'spotify:playlist:1umFDa1LXFUTVDhPNa9pa3'
+playlist_id_spotify = '1umFDa1LXFUTVDhPNa9pa3'
 
 
 
@@ -87,16 +87,20 @@ def weeklyTrackWork(user):
 
     #  playing around with searching for songs in spotify...
     scope = 'playlist-modify-public'
+
+    #TODO - fix this, do i even need a redirect_uri?
     token = util.prompt_for_user_token(username, scope, redirect_uri='https://example.com')
 
     if token:
         sp = spotipy.Spotify(auth=token)
 
-        #TODO - add timestamp when updated to description - getting errors with this
-        #(WIP) Grabs my weekly Top 20 songs from Last.fm and puts them in this playlist.
-        # print(username)
-        # print(playlist_id_spotify)
-        # res = sp.user_playlist_change_details(username, playlist_id_spotify, description="testing lol")
+        # update the description with current date and time that it was just updated last
+        dateNow = datetime.datetime.now()
+        dateString = dateNow.strftime("%x") + " at " + dateNow.strftime("%I") + ":" + dateNow.strftime("%M") + " " + dateNow.strftime("%p")
+        descString = "Updates my top 20 from the last week according to LastFM. Last updated on " + dateString + "."
+        sp.user_playlist_change_details(username, playlist_id_spotify, description=descString)
+        
+        #TODO - try/except if connected to internet
 
         fail_count = 0 # count for every track that fails to be added 
         uri_list = []
@@ -111,9 +115,8 @@ def weeklyTrackWork(user):
                 except:
                     # something went wrong, count it 
                     fail_count += 1
-                    
-        sp.user_playlist_replace_tracks(username, playlist_id_spotify, uri_list) 
 
+        sp.user_playlist_replace_tracks(username, playlist_id_spotify, uri_list) 
 
 # from last fm
 API_KEY = "30dd590f46f1e9d6e29d46765d85fa85"  # this is a sample key
@@ -127,8 +130,6 @@ password_hash = pylast.md5("Adamsandler62!")
 network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET, username=lfmUsername, password_hash=password_hash)
 
 jalex = network.get_authenticated_user()
-#user2 = network.get_user("cthomas68")
-#compareWeeklyTrackChartsImageDisplay(jalex,user2)
 
 weeklyTrackWork(jalex)
 
