@@ -11,66 +11,60 @@ alex_playlist = '1umFDa1LXFUTVDhPNa9pa3'
 grace_playlist = '6d994pPxkHN2gnUSfZzAWH'
 
 
+# commented code below is from alex playing around with other things
 
 
-'''
-Application name	Chrome New Tab Display
-API key	30dd590f46f1e9d6e29d46765d85fa85
-Shared secret	7b168f6722c966e5174f7774aeef759f
-Registered to	jalexaacobs
-'''
-
-#prints the common top50 artists between two users
-def compareTopArtists(user1,user2,artistLimit=50):
-    #get topArtists for both users
-    topArtists = user1.get_top_artists(limit=artistLimit)
-    topArtists2 = user2.get_top_artists(limit=artistLimit)
+# #prints the common top50 artists between two users
+# def compareTopArtists(user1,user2,artistLimit=50):
+#     #get topArtists for both users
+#     topArtists = user1.get_top_artists(limit=artistLimit)
+#     topArtists2 = user2.get_top_artists(limit=artistLimit)
     
-    #convert to sets
-    artistList1 = {str(artist[0]) for artist in topArtists}
-    artistList2 = {str(artist[0]) for artist in topArtists2}
+#     #convert to sets
+#     artistList1 = {str(artist[0]) for artist in topArtists}
+#     artistList2 = {str(artist[0]) for artist in topArtists2}
     
-    #print common artists in top50
-    comArtists = list(artistList2 & artistList1)   
-    print("Common Top",artistLimit,"artists between",user1.get_name(),"and",user2.get_name(),":")
-    for artist in comArtists:
-        print(artist)
+#     #print common artists in top50
+#     comArtists = list(artistList2 & artistList1)   
+#     print("Common Top",artistLimit,"artists between",user1.get_name(),"and",user2.get_name(),":")
+#     for artist in comArtists:
+#         print(artist)
 
-#prints the common tracks in the last week between two users 
-def compareWeeklyTrackCharts(user1,user2):
-    #get weekly charts
-    chart1 = user1.get_weekly_track_charts()
-    chart2 = user2.get_weekly_track_charts()
+# #prints the common tracks in the last week between two users 
+# def compareWeeklyTrackCharts(user1,user2):
+#     #get weekly charts
+#     chart1 = user1.get_weekly_track_charts()
+#     chart2 = user2.get_weekly_track_charts()
     
-    #convert to sets and print common tracks
-    set1 = {str(track[0]) for track in chart1}
-    set2 = {str(track[0]) for track in chart2}
-    comTracks = list(set1 & set2)
-    print("Common tracks in the last week between",user1.get_name(),"and",user2.get_name(),":")
-    for track in comTracks:
-        print(track)
+#     #convert to sets and print common tracks
+#     set1 = {str(track[0]) for track in chart1}
+#     set2 = {str(track[0]) for track in chart2}
+#     comTracks = list(set1 & set2)
+#     print("Common tracks in the last week between",user1.get_name(),"and",user2.get_name(),":")
+#     for track in comTracks:
+#         print(track)
 
 
-def compareWeeklyTrackChartsImageDisplay(user1,user2):
-    #get weekly charts
-    chart1 = user1.get_weekly_track_charts()
-    chart2 = user2.get_weekly_track_charts()
+# def compareWeeklyTrackChartsImageDisplay(user1,user2):
+#     #get weekly charts
+#     chart1 = user1.get_weekly_track_charts()
+#     chart2 = user2.get_weekly_track_charts()
     
-    #convert to sets and print common tracks
-    set1 = {track[0] for track in chart1}
-    set2 = {track[0] for track in chart2}
-    comTracks = list(set1 & set2)
-    print("Common tracks in the last week between",user1.get_name(),"and",user2.get_name(),":")
-    fout = open("output.html","w")
-    for track in comTracks:
-        print(str(track))
-        try:
-            writeToFile = "<img src=\"" + str(track.get_cover_image()) + "\"/>\n"
-            fout.write(writeToFile)
-        except:
-            pass
+#     #convert to sets and print common tracks
+#     set1 = {track[0] for track in chart1}
+#     set2 = {track[0] for track in chart2}
+#     comTracks = list(set1 & set2)
+#     print("Common tracks in the last week between",user1.get_name(),"and",user2.get_name(),":")
+#     fout = open("output.html","w")
+#     for track in comTracks:
+#         print(str(track))
+#         try:
+#             writeToFile = "<img src=\"" + str(track.get_cover_image()) + "\"/>\n"
+#             fout.write(writeToFile)
+#         except:
+#             pass
 
-    fout.close()
+#     fout.close()
     
 
 
@@ -120,20 +114,25 @@ def weeklyTrackWork(user, playlist_id_spotify):
 
         sp.user_playlist_replace_tracks(username, playlist_id_spotify, uri_list) 
 
+# load credentials from local file 
+# put LastFM information (e.g. key, secret, password) in this json file
+with open('.credentials.json','r') as f:
+  credentials = json.load(f)
+
 # from last fm
-API_KEY = "30dd590f46f1e9d6e29d46765d85fa85"  # this is a sample key
-API_SECRET = "7b168f6722c966e5174f7774aeef759f"
+API_KEY = credentials["LastFM_API_Key"] 
+API_SECRET = credentials["LastFM_API_Secret"]
 
 # authenticate
 lfmUsername = "jalexaacobs"
-password_hash = pylast.md5("Adamsandler62!")
+password_hash = pylast.md5(credentials["LastFM_Password"])
 
 # get network
 network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET, username=lfmUsername, password_hash=password_hash)
 
+# get last fm user running the show 
 jalex = network.get_authenticated_user()
 
+# get the top 20s for both alex and grace
 weeklyTrackWork(jalex, alex_playlist)
 weeklyTrackWork(network.get_user("gracemjacobs"),grace_playlist)
-
-
