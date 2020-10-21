@@ -7,7 +7,9 @@ import pylast
 import json
 
 username = 'jalexaacobs45'
-playlist_id_spotify = '1umFDa1LXFUTVDhPNa9pa3'
+alex_playlist = '1umFDa1LXFUTVDhPNa9pa3'
+grace_playlist = '6d994pPxkHN2gnUSfZzAWH'
+
 
 
 
@@ -72,7 +74,7 @@ def compareWeeklyTrackChartsImageDisplay(user1,user2):
     
 
 
-def weeklyTrackWork(user):
+def weeklyTrackWork(user, playlist_id_spotify):
     '''
     PERIOD_OVERALL = "overall"
     PERIOD_7DAYS = "7day"
@@ -82,7 +84,7 @@ def weeklyTrackWork(user):
     PERIOD_12MONTHS = "12month"
     '''
     # get top tracks for the lasts week - get 30 for some buffer for failure
-    topTracks = jalex.get_top_tracks(period='7day', limit=30)
+    topTracks = user.get_top_tracks(period='7day', limit=30)
     topTracks = [str(topTracks[i][0]) for i in range(len(topTracks))]
 
     #  playing around with searching for songs in spotify...
@@ -97,7 +99,7 @@ def weeklyTrackWork(user):
         # update the description with current date and time that it was just updated last
         dateNow = datetime.datetime.now()
         dateString = dateNow.strftime("%x") + " at " + dateNow.strftime("%I") + ":" + dateNow.strftime("%M") + " " + dateNow.strftime("%p")
-        descString = "Updates my top 20 from the last week according to LastFM. Last updated on " + dateString + "."
+        descString = "Updates the top 20 from the last week according to LastFM. Last updated on " + dateString + "."
         sp.user_playlist_change_details(username, playlist_id_spotify, description=descString)
         
         #TODO - try/except if connected to internet
@@ -131,6 +133,7 @@ network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET, username=
 
 jalex = network.get_authenticated_user()
 
-weeklyTrackWork(jalex)
+weeklyTrackWork(jalex, alex_playlist)
+weeklyTrackWork(network.get_user("gracemjacobs"),grace_playlist)
 
 
